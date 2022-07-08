@@ -6,6 +6,7 @@ class Game:
         self.enemy_x = randint(0, 250)
         self.enemy_y = randint(0, 250)
         self.placar =  0
+        self.erros = 0
         self.balas = 5
         self.minutos = "01"
         self.segundos = "00"
@@ -85,7 +86,7 @@ class Game:
         
     def times_update2(self):
         self.minutos = "00"
-        self.segundos = 59
+        self.segundos = 5
         self.stopwatch.config(text = f"TIME: {self.minutos}:{self.segundos}")
         self.root.after(1000, self.times_update3)
 
@@ -93,9 +94,12 @@ class Game:
         self.segundos -= 1
         if self.segundos <= 10:
             self.stopwatch.config(text = f"TIME: {self.minutos}:0{self.segundos}")
+            self.end_game()
         else:
             self.stopwatch.config(text = f"TIME: {self.minutos}:{self.segundos}")
+            self.end_game()
         self.root.after(1000, self.times_update3)
+
     #-----------------------------------------------------
 
     def start_game(self):
@@ -158,6 +162,7 @@ class Game:
                 self.municao.config(text = f"BULLETS: {self.balas}/5")
             self.sort_enemy_position()
         else:
+            self.erros += 1
             self.balas -= 1
             self.fundo.delete(self.enemy)
             self.sort_enemy_position()
@@ -171,4 +176,55 @@ class Game:
         self.shot_y = event.y
         self.enemy_hit()
 
+    def end_game(self):
+        if self.segundos == 0:
+            self.fundo.delete(self.enemy)
+            self.stopwatch.destroy()
+            self.municao.destroy()
+            self.score.destroy()
+
+            #CRIANDO FRAMES PARA TELA DE MSG FINAL
+            # ----------------------------------------------------------
+            self.show_end_center = LabelFrame(self.fundo, background='black')
+            self.show_end_center.place(x = 270, y = 100)
+
+            self.show_end_principal = Frame(self.show_end_center)
+            self.show_end_principal.grid(row= 0, column= 0, padx= 40)
+
+            self.msg1 = Frame(self.show_end_center)
+            self.msg1.grid(row= 1, column= 0, sticky= NW, pady= 4)
+
+            self.msg2 = Frame(self.show_end_center)
+            self.msg2.grid(row= 2, column= 0, sticky= NW, pady= 4)
+
+            self.msg3 = Frame(self.show_end_center)
+            self.msg3.grid(row= 3, column= 0, sticky= NW, pady= 4)
+
+            self.msg4 = Frame(self.show_end_center)
+            self.msg4.grid(row= 4, column= 0, sticky= NW, pady= 4)
+
+            self.msg5 = Frame(self.show_end_center)
+            self.msg5.grid(row= 5, column= 0, sticky= NW, pady= 4)
+
+            self.titulo = Frame(self.show_end_principal)
+            self.titulo.grid(row = 0, column = 0)
+            # ----------------------------------------------------------
+
+            self.msg_final = Label(self.show_end_principal, text="GAME OVER", font=("Courier", 15), foreground='red', background= 'black')
+            self.msg_final.grid(row = 0, column = 0)
+
+            self.score_msg = Label(self.msg1, text=f"PLAYER SCORE:{self.placar:12}", font=("Courier"), foreground= 'white', background= 'black')
+            self.score_msg.grid(row= 0 , column= 0)
+
+            self.hits_msg = Label(self.msg2, text=f"HITS: {self.placar:19}", font=("Courier"), foreground= 'white', background= 'black')
+            self.hits_msg.grid(row= 0, column= 0)
+           
+            self.mistakes_mg = Label(self.msg3, text=f"MISTAKES: {self.erros:15}", font=("Courier"), foreground= 'white', background= 'black')
+            self.mistakes_mg.grid(row= 0, column= 0)
+
+            self.shots_msg = Label(self.msg4, text=f"SHOTS: {self.placar + self.erros:18}", font=("Courier"), foreground= 'white', background= 'black')
+            self.shots_msg.grid(row= 0, column= 0)
+
+            self.media_msg = Label(self.msg5, text=f"POINT AVERAGE: {(self.placar / 60) :10}", font=("Courier"), foreground= 'white', background= 'black')
+            self.media_msg.grid(row= 0, column= 0)
 Game()
