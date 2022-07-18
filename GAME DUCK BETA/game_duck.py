@@ -1,5 +1,6 @@
 from tkinter import *
 from random import randint
+import pygame  
 
 class Game:
     def __init__(self):
@@ -86,7 +87,7 @@ class Game:
         
     def times_update2(self):
         self.minutos = "00"
-        self.segundos = 5
+        self.segundos = 59
         self.stopwatch.config(text = f"TIME: {self.minutos}:{self.segundos}")
         self.root.after(1000, self.times_update3)
 
@@ -107,6 +108,10 @@ class Game:
         self.root.geometry("800x503")
         self.root.title("DUCK-GAME.BETA")
         self.root.config(cursor="cross")
+        pygame.init()
+        self.musica_fundo = pygame.mixer.music.load('music.mp3')
+        pygame.mixer.music.play(-1)
+        # pygame.event.wait()
     
         # aqui é setado a todas as imagens dos personagens e no fundo 
         self.back = PhotoImage(file ="fundo2.png") 
@@ -149,23 +154,29 @@ class Game:
     # verifica o acerto ao pato
     def enemy_hit(self):
         if self.shot_x > self.enemy_x and self.shot_x < self.enemy_x + 70:
-            self.changue_image1()
             if self.balas > 0:
-                self.placar += 1
-            else:
-                self.placar += 0
-            self.score.config(text = f"SCORE: {self.placar}")
-            self.balas -= 1
-            if self.balas <= 0:
-                self.changue_text1()
-            else:
-                self.municao.config(text = f"BULLETS: {self.balas}/5")
-            self.sort_enemy_position()
+                self.shot_sound = pygame.mixer.Sound('shot_sound.mp3')
+                self.shot_sound.play()
+                self.changue_image1()
+                if self.balas > 0:
+                    self.placar += 1
+                else:
+                    self.placar += 0
+                self.score.config(text = f"SCORE: {self.placar}")
+                self.balas -= 1
+                if self.balas <= 0:
+                    self.changue_text1()
+                else:
+                    self.municao.config(text = f"BULLETS: {self.balas}/5")
+                self.sort_enemy_position()
         else:
-            self.erros += 1
-            self.balas -= 1
-            self.fundo.delete(self.enemy)
-            self.sort_enemy_position()
+            if self.balas > 0:
+                self.shot_sound = pygame.mixer.Sound('shot_sound.mp3')
+                self.shot_sound.play()
+                self.erros += 1
+                self.balas -= 1
+                self.fundo.delete(self.enemy)
+                self.sort_enemy_position()
             if self.balas <= 0:
                 self.changue_text1()
             else:
@@ -178,6 +189,7 @@ class Game:
 
     def end_game(self):
         if self.segundos == 0:
+            pygame.mixer.music.stop()
             self.fundo.delete(self.enemy)
             self.stopwatch.destroy()
             self.municao.destroy()
@@ -203,8 +215,8 @@ class Game:
             self.msg4 = Frame(self.show_end_center)
             self.msg4.grid(row= 4, column= 0, sticky= NW, pady= 4)
 
-            self.msg5 = Frame(self.show_end_center)
-            self.msg5.grid(row= 5, column= 0, sticky= NW, pady= 4)
+            # self.msg5 = Frame(self.show_end_center)
+            # self.msg5.grid(row= 5, column= 0, sticky= NW, pady= 4)
 
             self.titulo = Frame(self.show_end_principal)
             self.titulo.grid(row = 0, column = 0)
@@ -225,6 +237,6 @@ class Game:
             self.shots_msg = Label(self.msg4, text=f"SHOTS: {self.placar + self.erros:18}", font=("Courier"), foreground= 'white', background= 'black')
             self.shots_msg.grid(row= 0, column= 0)
 
-            self.media_msg = Label(self.msg5, text=f"POINT AVERAGE: {(self.placar / 60) :10}", font=("Courier"), foreground= 'white', background= 'black')
-            self.media_msg.grid(row= 0, column= 0)
+            # self.media_msg = Label(self.msg5, text=f"POINT AVERAGE: {(self.placar - self.erros) :10}", font=("Courier"), foreground= 'white', background= 'black')
+            # self.media_msg.grid(row= 0, column= 0)
 Game()
