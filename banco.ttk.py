@@ -8,8 +8,14 @@ class Win(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self)
         self.widgets()
+
+        self.box_settings = ttk.LabelFrame(self.central_frame)
+        self.box_settings.grid(row= 2, column= 0, sticky= 'NE')
+
+        self.frame_balance_buttons = ttk.LabelFrame(self.box_settings)
+        self.frame_balance_buttons.grid(row = 2, column=0, sticky= 'W')
         
-    def conection(self):
+    def conection(self): # Aqui criamos a conecão com o banco de dados 
         print("Connecting...")
 
         self.conection_database = (
@@ -23,10 +29,6 @@ class Win(ttk.Frame):
 
         self.cursor =  self.conect.cursor()
 
-        self.account_id = f"""
-        SELECT id_account FROM usuarios
-        ;"""
-    
     def show_account(self):
         #metodo para acessar os valores do banco 
         self.columns = ('ACCOUNT', 'FIRST NAME', 'LAST NAME','TYPE','BALANCE', 'STATUS')
@@ -67,7 +69,7 @@ class Win(ttk.Frame):
         self.tree.grid(row= 0, column= 0,)
 
     def widgets(self):
-        self.conection()
+        
         # criando frames para organizacao dos programas
         #--------------------------------------------------
         #frame central onde sera posto todas as janelas de conteudos
@@ -90,13 +92,23 @@ class Win(ttk.Frame):
         self.framebuttonsDown = ttk.Frame(self.central_frame)
         self.framebuttonsDown.grid(row = 2, column= 0,)
         #--------------------------------------------------
-    
+
+        self.msg_conecion = ttk.Label(self.central_frame, text="Connecting...")
+        self.msg_conecion.grid(row = 0, column = 0)
+        self.conection()
+        self.msg_conecion.config(text= "Success!")
+        self.msg_conecion.destroy()
+
         #criando a listbox das contas
         self.lb = tk.Listbox(self.first_frame)
         self.lb.grid(row= 0,  column=0)
 
+        # Aqui criamos o comando que seleciona os ID das contas no banco 
+        self.account_id = f"""
+        SELECT id_account FROM usuarios
+        ;"""
         self.consult = self.cursor.execute(self.account_id)
-        
+        # E aqui colocamos numa lista de consulta para acessalos para a edição 
         for self.clients in self.consult:
             self.lb.insert(tk.END ,f"{self.clients}.CONTA")
 
@@ -105,9 +117,11 @@ class Win(ttk.Frame):
                              text="SELECT",
                              command= self.selectAccount)
         self.bs.grid(row=1, column=0)
-        #metodo que cria em branco a tree em branco no começo
+        #metodo que cria em branco a tree no começo
         self.show_account()
-        
+
+    #Aqui começamos a criar o que cada botão da parte superior faz
+    #------------------------------------------------------------------------------------------------------    
     def selectAccount(self):
         #ajuste do botao de select para melhor aparencia do projeto
         self.bs.grid(row=1, column=1, padx=90)
@@ -124,10 +138,8 @@ class Win(ttk.Frame):
         # metodo de mostrar os dados 
         self.show_account_update()
 
-        
     def edit(self):
         #escondendo os botoes para melhor aparencia estetica
-        
         #ajustando a janela de informacoes 
         self.second_frame.grid(row= 1, column= 0, sticky="W", pady= 5, padx= 10)
 
@@ -138,6 +150,7 @@ class Win(ttk.Frame):
         self.b1.grid(row= 0, column=0) 
 
         self.b2 = ttk.Button(self.framebuttonsDown,
+                        command= self.changeAccount,
                         text="CHANGE ACCOUNT TYPE",
                         width=25)
         self.b2.grid(row= 1, column= 0) 
@@ -153,41 +166,112 @@ class Win(ttk.Frame):
         self.b4.grid(row= 3, column= 0)
 
         self.b5 = ttk.Button(self.framebuttonsDown,
+                        # command= self.finishEdit,
                         text="FINISH EDITION",
                         width=25)
         self.b5.grid(row= 4, column= 0)
 
+    def new_account(self):
+        pass
+    #------------------------------------------------------------------------------------------------------
+    #Aqui criamos os metodos dos botoes de baixo
+    #------------------------------------------------------------------------------------------------------
     def balanceMovement(self):
-        #config nova janela 
-        self.new_root = tk.Toplevel()
-        self.new_root.title("OPERAÇÃO")
-        self.new_root.geometry("253x200")
-        #criando todos os componentes da segunda janela 
+        self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NW')
 
-        #mesmo esquema para essa janela para melhor manuseio do sistema
-        
-        #frame que vai englobar toda a ganela 
-        self.central_new_root = ttk.LabelFrame(self.new_root)
-        self.central_new_root.pack()
-
-        #frame onde sera posto os conteudos
-        self.frame_new_root = ttk.LabelFrame(self.central_new_root)
-        self.frame_new_root.grid(row= 0, column=0)
-
-        self.text = ttk.Label(self.frame_new_root,
+        self.text_balance = ttk.Label(self.box_settings,
                               text="Insira a seguir o valor e escolha a operação"
                                 )
-        self.text.grid(row= 0, column= 0)
+        self.text_balance.grid(row= 0, column= 0)
 
-        self.lb2 = ttk.Label(self.frame_new_root,
+        self.lb2 = ttk.Label(self.box_settings,
                         text="R$")
-        self.lb2.grid(row = 1, column= 0, sticky='W')
+        self.lb2.grid(row = 1, column= 0, sticky='W',)
 
-        self.entry = ttk.Entry(self.frame_new_root,)
-        self.entry.grid(row= 1, column= 0, sticky="E", padx = 0)
+        self.entry_balance = ttk.Entry(self.box_settings)
+        self.entry_balance.grid(row= 1, column= 0)
+
+        self.bt_deposito = ttk.Button(self.frame_balance_buttons, 
+                                      command= self.depositAccount,
+                                      text= "DEPOSITAR")
+        self.bt_deposito.grid(row = 0, column= 0, padx= 30)
+
+        self.bt_saque = ttk.Button(self.frame_balance_buttons,
+                                   command= self.draftAccount,
+                                   text= "SAQUE")
+        self.bt_saque.grid(row = 0, column= 1, padx= 10)
+        
+    def changeAccount(self):
+        self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NW')
+
+        self.text_account = ttk.Label(self.box_settings,
+                              text="Para qual tipo de conta desejaria mudar?"
+                                )
+        self.text_account.grid(row= 0, column= 0)
+
+        self.entry_account = ttk.Entry(self.box_settings)
+        self.entry_account.grid(row= 1, column= 0)
+
+        self.frame_balance_buttons2 = ttk.LabelFrame(self.box_settings)
+        self.frame_balance_buttons2.grid(row = 2, column=0)
+
+        self.bt_changue_account = ttk.Button(self.frame_balance_buttons2, 
+                                            command= self.changeTypeAccount,
+                                            text= "CONFIRM")
+        self.bt_changue_account.grid(row = 0, column= 0)
+
+    # metodo de deposito no banco
+    def depositAccount(self):
+        self.desposit_balance = self.entry_balance.get()
+        # print(self.id)
+        self.deposit = f""" UPDATE usuarios
+                            SET balance = balance + {self.desposit_balance}
+                            WHERE id_account = {self.id}"""
+
+        self.cursor.execute(self.deposit)
+        self.cursor.commit()
+        self.show_account_update()
+    #metodo de saque do banco
+    def draftAccount(self):
+        self.draft_balance = self.entry_balance.get()
+        # print(self.id)
+        self.deposit = f"""DECLARE @VAL INT
+                            SELECT 
+                            @VAL =  balance 
+                            FROM usuarios
+                            WHERE id_account = {self.id};
+                            
+                            IF @VAL < {self.draft_balance}
+                                SELECT 'ERROR';
+                            ELSE 
+                                UPDATE usuarios
+                                SET balance = balance - {self.draft_balance}
+                                WHERE id_account = {self.id};"""
+
+        self.cursor.execute(self.deposit)
+        self.cursor.commit()
+        self.show_account_update()
+
+    def changeTypeAccount(self):
+        self.new_type =  self.entry_account.get().upper()
+        if self.new_type == "CORRENTE":
+            self.cursor.execute(f"""UPDATE usuarios
+                                SET type_account = 'C'
+                                WHERE id_account = {self.id}""")
+            self.cursor.commit()
+            self.show_account_update()
+
+        elif self.new_type == "POUPANCA":
+            self.cursor.execute(f"""UPDATE usuarios
+                                SET type_account = 'P'
+                                WHERE id_account = {self.id}""")
+            self.cursor.commit()
+            self.show_account_update()
+        else:
+            print("Tipo de conta inexistente!")
 
         
-
+    #------------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -199,6 +283,5 @@ if __name__ == "__main__":
     style.set_theme('breeze')
     app = Win(root)
     app.pack(fill="both", expand=True)
-
 
     root.mainloop()
