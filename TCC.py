@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import Frame, Label, StringVar, ttk
+from tkinter.font import NORMAL
 from ttkthemes import ThemedStyle
 import pyodbc 
 import pandas as pd
@@ -11,18 +12,19 @@ class Win(ttk.Frame):
         self.widgets()
 
     def conection(self): # Aqui criamos a conecão com o banco de dados 
-        print("Connecting...")
+        try:
+            self.conection_database = (
+                "Driver={SQL Server};"
+                "Server=DESKTOP;"
+                "Database=accounts;"
+            )
 
-        self.conection_database = (
-            "Driver={SQL Server};"
-            "Server=DESKTOP\MSSQLSERVER01;"
-            "Database=accounts;"
-        )
+            self.conect = pyodbc.connect(self.conection_database)
+            print("Sucess")
 
-        self.conect = pyodbc.connect(self.conection_database)
-        print("Sucess")
-
-        self.cursor =  self.conect.cursor()
+            self.cursor =  self.conect.cursor()
+        except:
+            messagebox.showerror("ERROR CONECTION", "Erro na tentativa de conexão ao banco, reinicie o app")
 
     def show_account(self):
         #metodo para acessar os valores do banco 
@@ -68,11 +70,12 @@ class Win(ttk.Frame):
         # criando frames para organizacao dos programas
         #--------------------------------------------------
         #frame central onde sera posto todas as janelas de conteudos
-        self.central_frame = ttk.LabelFrame(self)
-        self.central_frame.pack()
+        
+        self.central_frame = ttk.Frame(self)
+        self.central_frame.pack(pady= 100)
         
         #frame principal para manipulacao dos demais itens
-        self.first_frame = ttk.LabelFrame(self.central_frame, text= " ")
+        self.first_frame = ttk.Frame(self.central_frame)
         self.first_frame.grid(row= 0 , column= 0)
 
         #frame para os conteudos dos botoes
@@ -106,12 +109,14 @@ class Win(ttk.Frame):
         #criando botao select
         self.bs = ttk.Button(self.framebuttonsTop,
                              text="SELECT",
-                             command= self.selectAccount)
+                             command= self.selectAccount,
+                             state= tk.NORMAL)
         self.bs.grid(row=1, column=1)
 
         self.bn = ttk.Button(self.framebuttonsTop,
                                 command= self.newAccount,
-                                text="NEW ACCOUNT")
+                                text="NEW ACCOUNT",
+                                state= tk.NORMAL)
         self.bn.grid(row=1, column=0, padx= 5)
         #metodo que cria em branco a tree no começo
         self.show_account()
@@ -122,6 +127,8 @@ class Win(ttk.Frame):
         #ajuste do botao de select para melhor aparencia do projeto
         self.bs.grid(row=1, column=1, padx=90)
 
+        self.bn.config(state= tk.DISABLED)
+
         self.be = ttk.Button(self.framebuttonsTop,
                                 text="EDIT ACCOUNT",
                                 command= self.edit
@@ -131,6 +138,7 @@ class Win(ttk.Frame):
         self.show_account_update()
 
     def edit(self):
+        self.bs.config(state = tk.DISABLED)
         #escondendo os botoes para melhor aparencia estetica
         #frame dos botoes de edicao do segundo frame
         self.framebuttonsDown = ttk.Frame(self.central_frame)
@@ -141,31 +149,36 @@ class Win(ttk.Frame):
         self.b1 = ttk.Button(self.framebuttonsDown,
                         command= self.balanceMovement, 
                         text="DEPOSIT / WITHDRAW",
-                        width=25)
+                        width=25,
+                        state= tk.NORMAL)
         self.b1.grid(row= 0, column=0) 
 
         self.b2 = ttk.Button(self.framebuttonsDown,
                         command= self.changeAccount,
                         text="CHANGE ACCOUNT TYPE",
-                        width=25)
+                        width=25,
+                        state= tk.NORMAL)
         self.b2.grid(row= 1, column= 0) 
 
         self.b3= ttk.Button(self.framebuttonsDown,
                         command = self.changeStatusAccount,
                         text="CHANGE ACCOUNT STATUS",
-                        width=25)
+                        width=25,
+                        state= tk.NORMAL)
         self.b3.grid(row= 2, column= 0)
 
         self.b4 = ttk.Button(self.framebuttonsDown,
                         command= self.deleteAccount,
                         text="DELETE ACCOUNT",
-                        width=25)
+                        width=25,
+                        state= tk.NORMAL)
         self.b4.grid(row= 3, column= 0)
 
         self.b5 = ttk.Button(self.framebuttonsDown,
                         command= self.finishEdit,
                         text="FINISH EDITION",
-                        width=25)
+                        width=25,
+                        state= tk.NORMAL)
         self.b5.grid(row= 4, column= 0)
 
     def newAccount(self):
@@ -231,11 +244,15 @@ class Win(ttk.Frame):
         self.show_account_update()
 
         
-
     #------------------------------------------------------------------------------------------------------
     #Aqui criamos os metodos dos botoes de baixo
     #------------------------------------------------------------------------------------------------------
     def balanceMovement(self):
+        self.b2.config(state= tk.DISABLED)
+        self.b3.config(state= tk.DISABLED)
+        self.b4.config(state= tk.DISABLED)
+        self.b5.config(state= tk.DISABLED)
+
         self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NW')
 
         self.box_settings = ttk.LabelFrame(self.central_frame)
@@ -357,7 +374,6 @@ class Win(ttk.Frame):
                                     @STATUS = status_account
                                 FROM usuarios
                                 WHERE id_account = {self.id}
-
                                 IF @STATUS = 'On'
                                     UPDATE usuarios
                                     SET status_account = 'Off'
@@ -376,7 +392,6 @@ class Win(ttk.Frame):
                             @CON_DELETE = status_account
                         FROM usuarios
                         WHERE id_account = {self.id}
-
                         IF @CON_DELETE = 'Off'
                             DELETE FROM usuarios
                             WHERE id_account = {self.id}
@@ -396,6 +411,7 @@ class Win(ttk.Frame):
         self.show_account_update()
 
     def finishEdit(self):
+        self.bs.config(state= tk.NORMAL)
         self.framebuttonsDown.destroy()
         self.box_settings.destroy()
         self.show_account()
