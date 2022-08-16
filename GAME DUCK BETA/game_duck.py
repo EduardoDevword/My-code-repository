@@ -239,4 +239,5 @@ class Game:
 
             # self.media_msg = Label(self.msg5, text=f"POINT AVERAGE: {(self.placar - self.erros) :10}", font=("Courier"), foreground= 'white', background= 'black')
             # self.media_msg.grid(row= 0, column= 0)
+            
 Game()
