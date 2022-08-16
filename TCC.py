@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import Frame, Label, StringVar, ttk
 from tkinter.font import NORMAL
 from ttkthemes import ThemedStyle
+import sv_ttk
 import pyodbc 
 import pandas as pd
 from tkinter import messagebox
@@ -15,7 +16,7 @@ class Win(ttk.Frame):
         try:
             self.conection_database = (
                 "Driver={SQL Server};"
-                "Server=DESKTOP;"
+                "Server=DESKTOP-8NMB5UJ;" # DESKTOP servidor de casa / DESKTOP-8NMB5UJ servidor curso
                 "Database=accounts;"
             )
 
@@ -28,21 +29,19 @@ class Win(ttk.Frame):
 
     def show_account(self):
         #metodo para acessar os valores do banco 
-        self.columns = ('ACCOUNT', 'FIRST NAME', 'LAST NAME','TYPE','BALANCE', 'STATUS')
+        self.columns = ('ACCOUNT', 'NAME','TYPE','BALANCE', 'STATUS')
 
         self.tree = ttk.Treeview(self.second_frame, columns= self.columns, show='headings', height= 3)
 
         # ajustando o tamanho das colunas da treeview
         self.tree.column('ACCOUNT', width= 90)
-        self.tree.column('FIRST NAME', width= 100)
-        self.tree.column('LAST NAME', width= 100)
+        self.tree.column('NAME', width= 108 )
         self.tree.column('TYPE', width= 70)
         self.tree.column('BALANCE', width= 100)
         self.tree.column('STATUS', width= 70)
 
         self.tree.heading('ACCOUNT', text='ACCOUNT')
-        self.tree.heading('FIRST NAME', text='FIRST NAME')
-        self.tree.heading('LAST NAME', text='LAST NAME')
+        self.tree.heading('NAME', text='NAME')
         self.tree.heading('TYPE', text='TYPE')
         self.tree.heading('BALANCE', text='BALANCE')
         self.tree.heading('STATUS', text='STATUS')
@@ -51,19 +50,21 @@ class Win(ttk.Frame):
     
     def show_account_update(self):
         self.show_account()
-        #o self.id é o DADO BASE TOTAL para as manipulacoes no banco
-        self.id = int(self.lb.get(self.lb.curselection())[1:2])
-        
-        self.consult = f"""
-        SELECT * FROM usuarios
-        WHERE id_account = {self.id};"""
+        self.id  = int(self.lb.get(self.lb.curselection())[:1])
+        consult = f"""
+            SELECT * FROM usuarios
+            WHERE id_account = {self.id};"""
 
-        self.select_consult = self.cursor.execute(self.consult)
+        usuario = pd.read_sql_query(consult, self.conect)
 
-        for rows in self.select_consult:
-            self.tree.insert("", tk.END, values=rows)
-        
-        self.tree.grid(row= 0, column= 0,)
+        for index, columns in usuario.iterrows():
+            account = columns["id_account"]
+            name = columns["name"]
+            type_account = columns["type_account"]
+            balance = columns["balance"]
+            status_accounts = columns["status_account"]
+            dados = [account, name, type_account, balance, status_accounts]
+            self.tree.insert("", tk.END, values= dados)
 
     def widgets(self):
         
@@ -101,10 +102,10 @@ class Win(ttk.Frame):
         self.account_id = f"""
         SELECT id_account FROM usuarios
         ;"""
-        self.consult = self.cursor.execute(self.account_id)
+        self.consult = pd.read_sql_query(self.account_id, self.conect)
         # E aqui colocamos numa lista de consulta para acessalos para a edição 
-        for self.clients in self.consult:
-            self.lb.insert(tk.END ,f"{self.clients}.CONTA")
+        for index ,self.clients in self.consult.iterrows():
+            self.lb.insert(tk.END ,f"{self.clients['id_account']}.CONTA")
 
         #criando botao select
         self.bs = ttk.Button(self.framebuttonsTop,
@@ -221,8 +222,9 @@ class Win(ttk.Frame):
     def insertNewAccount(self):
         self.name_insert = self.entry_create_name.get()
         self.type_account_create = self.type_create.get()
+        self.createte_cpf
 
-        self.insert_new_account =f"""INSERT INTO usuarios (name, type_account, balance, status_account) VALUES ( '{self.name_insert}','{self.type_account_create}', 0.00, 'On'); """
+        self.insert_new_account =f"""INSERT INTO usuarios (name, type_account, balance, status_account) VALUES ( '{self.name_insert}','{self.type_account_create}', 0.00, 'On', {self.create_cpf}); """
 
         self.cursor.execute(self.insert_new_account)
         self.cursor.commit()
