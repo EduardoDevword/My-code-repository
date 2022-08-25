@@ -1,3 +1,4 @@
+from ast import main
 import tkinter as tk
 from tkinter import Frame, Label, StringVar, ttk
 from tkinter.font import NORMAL
@@ -10,7 +11,8 @@ from tkinter import messagebox
 class Win(ttk.Frame):
     def __init__(self, parent):
         ttk.Frame.__init__(self)
-        self.widgets()
+        self.login()
+        # self.widgets()
 
     def conection(self): # Aqui criamos a conecão com o banco de dados 
         try:
@@ -27,6 +29,74 @@ class Win(ttk.Frame):
         except:
             messagebox.showerror("ERROR CONECTION", "Erro na tentativa de conexão ao banco, reinicie o app")
 
+    
+    def login(self):
+        self.conection()
+        # criando frames para organizacao dos programas
+        #--------------------------------------------------
+        #frame central onde sera posto todas as janelas de conteudos
+        self.account_id = f"""
+        SELECT id_account FROM usuarios
+        ;"""
+
+        self.consult = pd.read_sql_query(self.account_id, self.conect)
+        # E aqui colocamos numa lista de consulta para acessalos para a edição 
+        
+        self.valores = ['']
+        for index ,self.clients in self.consult.iterrows():
+            self.valores.append(self.clients.id_account)
+        
+        self.img = tk.PhotoImage(file= "logo_banco.png")
+
+        self.main_frame = ttk.LabelFrame(self)
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        self.img_logo = ttk.Label(self.main_frame, image= self.img, background="#414141" )
+        self.img_logo.pack(pady= 30)
+
+        self.user_label = ttk.Label(self.main_frame, text="User Name")
+        self.user_label.pack()
+
+        self.entry_username = ttk.Entry(self.main_frame, width= 50)
+        self.entry_username.pack()
+
+        self.accounts_label = ttk.Label(self.main_frame, text="Nº da conta")
+        self.accounts_label.pack(pady=20)
+
+        self.combo_conta = ttk.Combobox(self.main_frame, values= self.valores)
+        self.combo_conta.pack(pady=20)
+
+        self.password_label = ttk.Label(self.main_frame, text="Password")
+        self.password_label.pack()
+
+        self.entry_password = ttk.Entry(self.main_frame, width= 50, show="*")
+        self.entry_password.pack()
+
+        self.login_button = ttk.Button(self.main_frame, text="Login", command=self.check_login)
+        self.login_button.pack(pady=30)
+
+    #metodo que ira fazer a verificacao do gerente para tentar acessar as contas
+    def check_login(self):
+        self.login_username = self.entry_username.get()
+        self.login_password = int(self.entry_password.get())
+        self.id = int(self.combo_conta.get())
+
+        self.manager_consult = f""" SELECT 
+                                    name_manager,
+                                    manager_user,
+                                    manager_password 
+                                    FROM managesrs"""
+
+        self.manager_result = pd.read_sql_query(self.manager_consult, self.conect)
+
+        for index ,self.manager_dados in self.manager_result.iterrows():
+            if int(self.manager_dados.manager_password) == self.login_password and self.manager_dados.manager_user  == self.login_username:
+                self.main_frame.destroy()
+                self.widgets()
+            else:
+               tk.messagebox.showerror("[ERROR] Login error", "Incorrect username or password! Try again later.")
+
+
     def show_account(self):
         #metodo para acessar os valores do banco 
         self.columns = ('ACCOUNT', 'NAME','TYPE','BALANCE', 'STATUS')
@@ -35,7 +105,7 @@ class Win(ttk.Frame):
 
         # ajustando o tamanho das colunas da treeview
         self.tree.column('ACCOUNT', width= 90)
-        self.tree.column('NAME', width= 108 )
+        self.tree.column('NAME', width= 110 )
         self.tree.column('TYPE', width= 70)
         self.tree.column('BALANCE', width= 100)
         self.tree.column('STATUS', width= 70)
@@ -46,102 +116,39 @@ class Win(ttk.Frame):
         self.tree.heading('BALANCE', text='BALANCE')
         self.tree.heading('STATUS', text='STATUS')
 
-        self.tree.grid(row= 0, column= 0,)
-    
-    def show_account_update(self):
-        self.show_account()
-        self.id  = int(self.lb.get(self.lb.curselection())[:1])
         consult = f"""
-            SELECT * FROM usuarios
-            WHERE id_account = {self.id};"""
+                SELECT * FROM usuarios
+                WHERE id_account = {self.id};"""
 
         usuario = pd.read_sql_query(consult, self.conect)
 
         for index, columns in usuario.iterrows():
-            account = columns["id_account"]
+            account = columns.id_account
             name = columns["name"]
-            type_account = columns["type_account"]
-            balance = columns["balance"]
-            status_accounts = columns["status_account"]
+            type_account = columns.type_account
+            balance = columns.balance
+            status_accounts = columns.status_account
             dados = [account, name, type_account, balance, status_accounts]
             self.tree.insert("", tk.END, values= dados)
 
+        self.tree.grid(row= 0, column= 0,)
+    
+
     def widgets(self):
-        
-        # criando frames para organizacao dos programas
-        #--------------------------------------------------
-        #frame central onde sera posto todas as janelas de conteudos
-        
         self.central_frame = ttk.Frame(self)
-        self.central_frame.pack(pady= 100)
+        self.central_frame.pack()
         
         #frame principal para manipulacao dos demais itens
         self.first_frame = ttk.Frame(self.central_frame)
         self.first_frame.grid(row= 0 , column= 0)
 
         #frame para os conteudos dos botoes
-        self.framebuttonsTop = ttk.Frame(self.first_frame) 
-        self.framebuttonsTop.grid(row = 1 , column= 0, pady=5) 
 
         #frame para a parte de baixo  do nosso programa 
         self.second_frame = ttk.Frame(self.central_frame)
         self.second_frame.grid(row= 1, column= 0)
         #--------------------------------------------------
 
-        self.msg_conecion = ttk.Label(self.central_frame, text="Connecting...")
-        self.msg_conecion.grid(row = 0, column = 0)
-        self.conection()
-        self.msg_conecion.config(text= "Success!")
-        self.msg_conecion.destroy()
-
-        #criando a listbox das contas
-        self.lb = tk.Listbox(self.first_frame)
-        self.lb.grid(row= 0,  column=0)
-
-        # Aqui criamos o comando que seleciona os ID das contas no banco 
-        self.account_id = f"""
-        SELECT id_account FROM usuarios
-        ;"""
-        self.consult = pd.read_sql_query(self.account_id, self.conect)
-        # E aqui colocamos numa lista de consulta para acessalos para a edição 
-        for index ,self.clients in self.consult.iterrows():
-            self.lb.insert(tk.END ,f"{self.clients['id_account']}.CONTA")
-
-        #criando botao select
-        self.bs = ttk.Button(self.framebuttonsTop,
-                             text="SELECT",
-                             command= self.selectAccount,
-                             state= tk.NORMAL)
-        self.bs.grid(row=1, column=1)
-
-        self.bn = ttk.Button(self.framebuttonsTop,
-                                command= self.newAccount,
-                                text="NEW ACCOUNT",
-                                state= tk.NORMAL)
-        self.bn.grid(row=1, column=0, padx= 5)
-        #metodo que cria em branco a tree no começo
-        self.show_account()
-
-    #Aqui começamos a criar o que cada botão da parte superior faz
-    #------------------------------------------------------------------------------------------------------    
-    def selectAccount(self):
-        #ajuste do botao de select para melhor aparencia do projeto
-        self.bs.grid(row=1, column=1, padx=90)
-
-        self.bn.config(state= tk.DISABLED)
-
-        self.be = ttk.Button(self.framebuttonsTop,
-                                text="EDIT ACCOUNT",
-                                command= self.edit
-                                )
-        self.be.grid(row = 1, column = 2)
-        # metodo de mostrar os dados 
-        self.show_account_update()
-
-    def edit(self):
-        self.bs.config(state = tk.DISABLED)
-        #escondendo os botoes para melhor aparencia estetica
-        #frame dos botoes de edicao do segundo frame
         self.framebuttonsDown = ttk.Frame(self.central_frame)
         self.framebuttonsDown.grid(row = 2, column= 0,)
         #ajustando a janela de informacoes 
@@ -176,12 +183,23 @@ class Win(ttk.Frame):
         self.b4.grid(row= 3, column= 0)
 
         self.b5 = ttk.Button(self.framebuttonsDown,
+                                command= self.newAccount,
+                                text="NEW ACCOUNT",
+                                width=25,
+                                state= tk.NORMAL)
+        self.b5.grid(row=4, column=0)
+
+        self.b6 = ttk.Button(self.framebuttonsDown,
                         command= self.finishEdit,
                         text="FINISH EDITION",
                         width=25,
                         state= tk.NORMAL)
-        self.b5.grid(row= 4, column= 0)
+        self.b6.grid(row= 5, column= 0)
 
+        self.show_account()
+
+    #Aqui fica o metodo de criacao de uma nova conta 
+    #------------------------------------------------------------------------------------------------------    
     def newAccount(self):
 
         self.type_create = tk.StringVar()
@@ -240,12 +258,10 @@ class Win(ttk.Frame):
         ;"""
         self.consult = self.cursor.execute(self.account_id)
         # E aqui colocamos numa lista de consulta para acessalos para a edição 
-        for self.clients in self.consult:
-            self.lb.insert(tk.END ,f"{self.clients}.CONTA")
+        for index ,self.clients in self.consult.iterrows():
+            self.lb.insert(tk.END ,f"{self.clients.id_account}.CONTA")
             
-        self.show_account_update()
-
-        
+        self.show_account()
     #------------------------------------------------------------------------------------------------------
     #Aqui criamos os metodos dos botoes de baixo
     #------------------------------------------------------------------------------------------------------
@@ -254,13 +270,13 @@ class Win(ttk.Frame):
         self.b3.config(state= tk.DISABLED)
         self.b4.config(state= tk.DISABLED)
         self.b5.config(state= tk.DISABLED)
+        self.b6.config(state= tk.DISABLED)
 
-        self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NW')
 
-        self.box_settings = ttk.LabelFrame(self.central_frame)
-        self.box_settings.grid(row= 2, column= 0, sticky= 'NE')
+        self.box_settings = ttk.Frame(self.central_frame)
+        self.box_settings.grid(row = 3, column= 0, pady= 45)
 
-        self.frame_balance_buttons = ttk.LabelFrame(self.box_settings)
+        self.frame_balance_buttons = ttk.Frame(self.box_settings)
         self.frame_balance_buttons.grid(row = 2, column=0, sticky= 'W')
 
         self.text_balance = ttk.Label(self.box_settings,
@@ -310,51 +326,64 @@ class Win(ttk.Frame):
     # metodo de deposito no banco
     def depositAccount(self):
         self.desposit_balance = self.entry_balance.get()
-        # print(self.id)
         self.deposit = f""" UPDATE usuarios
                             SET balance = balance + {self.desposit_balance}
                             WHERE id_account = {self.id}"""
 
         self.cursor.execute(self.deposit)
         self.cursor.commit()
-        self.show_account_update()
+        self.show_account()
         self.box_settings.destroy()
+        self.b2.config(state= tk.NORMAL)
+        self.b3.config(state= tk.NORMAL)
+        self.b4.config(state= tk.NORMAL)
+        self.b5.config(state= tk.NORMAL)
+        self.b6.config(state= tk.NORMAL)
         self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
+        
     
     #metodo de saque do banco
     def draftAccount(self):
       
         self.draft_balance = self.entry_balance.get()
-        # print(self.id)
-        self.deposit = f"""DECLARE @VAL INT
-                            SELECT 
-                            @VAL =  balance 
-                            FROM usuarios
-                            WHERE id_account = {self.id};
-                            
-                            IF @VAL < {self.draft_balance}
-                                SELECT 'ERROR';
-                            ELSE 
+
+        self.consult_balance = f""" SELECT 
+                                balance 
+                                FROM usuarios
+                                WHERE id_account = {self.id};"""
+
+        self.result_consult_balance = pd.read_sql_query(self.consult_balance, self.conect)
+        
+        for index ,balance_client in self.result_consult_balance.iterrows():
+            if int(balance_client.balance) < int(self.draft_balance):
+               tk.messagebox.showerror("Bank transaction error", "The amount requested for the withdrawal is higher than what is in the account. Check the amount you want or contact your manager")
+
+            else:
+                self.draft = f"""
                                 UPDATE usuarios
                                 SET balance = balance - {self.draft_balance}
                                 WHERE id_account = {self.id};"""
-
-        self.cursor.execute(self.deposit)
-        self.cursor.commit()
-        self.show_account_update()
+                self.cursor.execute(self.draft)
+                self.cursor.commit()
+                
+        self.show_account()
         self.box_settings.destroy()
+        self.b2.config(state= tk.NORMAL)
+        self.b3.config(state= tk.NORMAL)
+        self.b4.config(state= tk.NORMAL)
+        self.b5.config(state= tk.NORMAL)
         self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
-       
-
+    
     def changeTypeAccount(self):
-        
+
+
         self.new_type =  self.entry_account.get().upper()
         if self.new_type == "CORRENTE":
             self.cursor.execute(f"""UPDATE usuarios
                                 SET type_account = 'C'
                                 WHERE id_account = {self.id}""")
             self.cursor.commit()
-            self.show_account_update()
+            self.show_account()
             self.box_settings.destroy()
             self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
             
@@ -364,7 +393,7 @@ class Win(ttk.Frame):
                                 SET type_account = 'P'
                                 WHERE id_account = {self.id}""")
             self.cursor.commit()
-            self.show_account_update()
+            self.show_account()
             self.box_settings.destroy()
             self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
         else:
@@ -386,7 +415,7 @@ class Win(ttk.Frame):
                                     WHERE id_account = {self.id};"""
         self.cursor.execute(self.new_status)
         self.cursor.commit()
-        self.show_account_update()
+        self.show_account()
 
     def deleteAccount(self):
         self.delete =f"""DECLARE @CON_DELETE VARCHAR(3)
@@ -410,7 +439,7 @@ class Win(ttk.Frame):
         # E aqui colocamos numa lista de consulta para acessalos para a edição 
         for self.clients in self.consult:
             self.lb.insert(tk.END ,f"{self.clients}.CONTA")
-        self.show_account_update()
+        self.show_account()
 
     def finishEdit(self):
         self.bs.config(state= tk.NORMAL)
@@ -422,13 +451,14 @@ class Win(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
+    # root2 =tk.Tk()
     root.title('BANCO IO 1.0')
-    root.geometry("720x700")
-    root.iconphoto
+    root.geometry("400x600")
+    root.iconphoto  
     # Simply set the theme
     style = ThemedStyle(root)
-    style.set_theme('breeze')
+    style.set_theme('equilux')
     app = Win(root)
     app.pack(fill="both", expand=True)
-
+    # root2.mainloop()
     root.mainloop()
