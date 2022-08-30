@@ -1,4 +1,5 @@
 from ast import main
+from email.errors import MessageError
 import tkinter as tk
 from tkinter import Frame, Label, StringVar, ttk
 from tkinter.font import NORMAL
@@ -133,8 +134,8 @@ class Win(ttk.Frame):
 
         self.tree.grid(row= 0, column= 0,)
     
-
     def widgets(self):
+
         self.central_frame = ttk.Frame(self)
         self.central_frame.pack()
         
@@ -150,7 +151,7 @@ class Win(ttk.Frame):
         #--------------------------------------------------
 
         self.framebuttonsDown = ttk.Frame(self.central_frame)
-        self.framebuttonsDown.grid(row = 2, column= 0,)
+        self.framebuttonsDown.grid(row = 2, column= 0, pady=10)
         #ajustando a janela de informacoes 
         self.second_frame.grid(row= 1, column= 0, sticky="W", pady= 5, padx= 10)
 
@@ -202,15 +203,21 @@ class Win(ttk.Frame):
     #------------------------------------------------------------------------------------------------------    
     def newAccount(self):
 
+        self.b1.config(state= tk.DISABLED)
+        self.b2.config(state= tk.DISABLED)
+        self.b3.config(state= tk.DISABLED)
+        self.b4.config(state= tk.DISABLED)
+        self.b6.config(state= tk.DISABLED)
+
         self.type_create = tk.StringVar()
 
-        self.frame_create_account_name = ttk.LabelFrame(self.central_frame)
+        self.frame_create_account_name = ttk.Frame(self.central_frame)
         self.frame_create_account_name.grid(row = 3, column= 0, sticky="NW")
 
-        self.frame_create_account_buttons = ttk.LabelFrame(self.central_frame)
+        self.frame_create_account_buttons = ttk.Frame(self.central_frame)
         self.frame_create_account_buttons.grid(row = 3, column= 0, sticky= "NE")
 
-        self.confirm_create = ttk.LabelFrame(self.central_frame)
+        self.confirm_create = ttk.Frame(self.central_frame)
         self.confirm_create.grid(row = 4, column= 0)
 
         self.nome = ttk.Label(self.frame_create_account_name, text= "Nome completo*")
@@ -238,6 +245,7 @@ class Win(ttk.Frame):
         self.confirm_create_button.grid(row = 0, column = 0)
 
     def insertNewAccount(self):
+
         self.name_insert = self.entry_create_name.get()
         self.type_account_create = self.type_create.get()
         self.createte_cpf
@@ -251,30 +259,26 @@ class Win(ttk.Frame):
         self.frame_create_account_buttons.destroy()
         self.confirm_create.destroy()
 
-        self.lb.delete(0,tk.END)
-
-        self.account_id = f"""
-        SELECT id_account FROM usuarios
-        ;"""
-        self.consult = self.cursor.execute(self.account_id)
-        # E aqui colocamos numa lista de consulta para acessalos para a edição 
-        for index ,self.clients in self.consult.iterrows():
-            self.lb.insert(tk.END ,f"{self.clients.id_account}.CONTA")
-            
         self.show_account()
+
+        self.b1.config(state= tk.NORMAL)
+        self.b2.config(state= tk.NORMAL)
+        self.b3.config(state= tk.NORMAL)
+        self.b4.config(state= tk.NORMAL)
+        self.b6.config(state= tk.NORMAL)
     #------------------------------------------------------------------------------------------------------
     #Aqui criamos os metodos dos botoes de baixo
     #------------------------------------------------------------------------------------------------------
     def balanceMovement(self):
+
         self.b2.config(state= tk.DISABLED)
         self.b3.config(state= tk.DISABLED)
         self.b4.config(state= tk.DISABLED)
         self.b5.config(state= tk.DISABLED)
         self.b6.config(state= tk.DISABLED)
 
-
         self.box_settings = ttk.Frame(self.central_frame)
-        self.box_settings.grid(row = 3, column= 0, pady= 45)
+        self.box_settings.grid(row = 3, column= 0, pady= 20)
 
         self.frame_balance_buttons = ttk.Frame(self.box_settings)
         self.frame_balance_buttons.grid(row = 2, column=0, sticky= 'W')
@@ -302,10 +306,15 @@ class Win(ttk.Frame):
         self.bt_saque.grid(row = 0, column= 1, padx= 10)
         
     def changeAccount(self):
-        self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NW')
 
-        self.box_settings = ttk.LabelFrame(self.central_frame)
-        self.box_settings.grid(row= 2, column= 0, sticky= 'NE')
+        self.b1.config(state= tk.DISABLED)
+        self.b3.config(state= tk.DISABLED)
+        self.b4.config(state= tk.DISABLED)
+        self.b5.config(state= tk.DISABLED)
+        self.b6.config(state= tk.DISABLED)
+
+        self.box_settings = ttk.Frame(self.central_frame)
+        self.box_settings.grid(row = 3, column= 0, pady= 20)
 
         self.text_account = ttk.Label(self.box_settings,
                               text="Para qual tipo de conta desejaria mudar?"
@@ -315,7 +324,7 @@ class Win(ttk.Frame):
         self.entry_account = ttk.Entry(self.box_settings)
         self.entry_account.grid(row= 1, column= 0)
 
-        self.frame_balance_buttons2 = ttk.LabelFrame(self.box_settings)
+        self.frame_balance_buttons2 = ttk.Frame(self.box_settings)
         self.frame_balance_buttons2.grid(row = 2, column=0)
 
         self.bt_changue_account = ttk.Button(self.frame_balance_buttons2, 
@@ -339,9 +348,7 @@ class Win(ttk.Frame):
         self.b4.config(state= tk.NORMAL)
         self.b5.config(state= tk.NORMAL)
         self.b6.config(state= tk.NORMAL)
-        self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
         
-    
     #metodo de saque do banco
     def draftAccount(self):
       
@@ -372,10 +379,15 @@ class Win(ttk.Frame):
         self.b3.config(state= tk.NORMAL)
         self.b4.config(state= tk.NORMAL)
         self.b5.config(state= tk.NORMAL)
-        self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
+        self.b6.config(state= tk.NORMAL)
     
     def changeTypeAccount(self):
 
+        self.b1.config(state= tk.NORMAL)
+        self.b3.config(state= tk.NORMAL)
+        self.b4.config(state= tk.NORMAL)
+        self.b5.config(state= tk.NORMAL)
+        self.b6.config(state= tk.NORMAL)
 
         self.new_type =  self.entry_account.get().upper()
         if self.new_type == "CORRENTE":
@@ -387,7 +399,6 @@ class Win(ttk.Frame):
             self.box_settings.destroy()
             self.framebuttonsDown.grid(row = 2, column= 0, sticky= 'NS')
             
-
         elif self.new_type == "POUPANCA":
             self.cursor.execute(f"""UPDATE usuarios
                                 SET type_account = 'P'
@@ -418,28 +429,23 @@ class Win(ttk.Frame):
         self.show_account()
 
     def deleteAccount(self):
-        self.delete =f"""DECLARE @CON_DELETE VARCHAR(3)
+        self.delete =f"""
                         SELECT 
-                            @CON_DELETE = status_account
+                            status_account,
+                            balance
                         FROM usuarios
-                        WHERE id_account = {self.id}
-                        IF @CON_DELETE = 'Off'
-                            DELETE FROM usuarios
-                            WHERE id_account = {self.id}
-                        """
-        self.cursor.execute(self.delete)
-        self.cursor.commit()
+                        WHERE id_account = {self.id}"""
 
-        self.lb.delete(0,tk.END)
+        self.delete_result = pd.read_sql_query(self.delete, self.conect)
+        for index ,self.delete_dados in self.delete_result.iterrows():
+            if self.delete_dados.balance >= 0 and self.delete_dados.status_account == "Off":
+               self.delete_query = "DELETE FROM usuariosWHERE id_account = {self.id}" 
 
-        self.account_id = f"""
-        SELECT id_account FROM usuarios
-        ;"""
-        self.consult = self.cursor.execute(self.account_id)
-        # E aqui colocamos numa lista de consulta para acessalos para a edição 
-        for self.clients in self.consult:
-            self.lb.insert(tk.END ,f"{self.clients}.CONTA")
-        self.show_account()
+               self.cursor.execute(self.delete_query)
+               self.cursor.commit()
+            else:
+                tk.messagebox.showerror("[ERROR] delete acount", "The amount requested for the withdrawal is higher than what is in the account. Check the amount you want or contact your manager")
+
 
     def finishEdit(self):
         self.bs.config(state= tk.NORMAL)
@@ -451,7 +457,6 @@ class Win(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    # root2 =tk.Tk()
     root.title('BANCO IO 1.0')
     root.geometry("400x600")
     root.iconphoto  
