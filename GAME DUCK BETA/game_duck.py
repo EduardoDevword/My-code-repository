@@ -114,10 +114,10 @@ class Game:
         # pygame.event.wait()
     
         # aqui é setado a todas as imagens dos personagens e no fundo 
-        self.back = PhotoImage(file ="fundo2.png") 
-        self.enemy_image = PhotoImage(file = "enemy.png")
-        self.enemy_die_image = PhotoImage(file = "enemy_die.png")
-        self.icon = PhotoImage(file = "logo_game_duck.png")
+        self.back = PhotoImage(file ="GAME DUCK BETA//fundo2.png") 
+        self.enemy_image = PhotoImage(file = "GAME DUCK BETA//enemy.png")
+        self.enemy_die_image = PhotoImage(file = "GAME DUCK BETA//enemy_die.png")
+        self.icon = PhotoImage(file = "GAME DUCK BETA//logo_game_duck.png")
         self.root.iconphoto(False, self.icon)
 
         #Fundo do programa 
