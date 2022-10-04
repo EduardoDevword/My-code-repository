@@ -101,6 +101,10 @@ class Game:
             self.end_game()
         self.root.after(1000, self.times_update3)
 
+
+    def cloud_move(self):
+        pass
+
     #-----------------------------------------------------
 
     def start_game(self):
@@ -118,6 +122,7 @@ class Game:
         self.enemy_image = PhotoImage(file = "GAME DUCK BETA//enemy.png")
         self.enemy_die_image = PhotoImage(file = "GAME DUCK BETA//enemy_die.png")
         self.icon = PhotoImage(file = "GAME DUCK BETA//logo_game_duck.png")
+        # self.cloud = PhotoImage()
         self.root.iconphoto(False, self.icon)
 
         #Fundo do programa 
