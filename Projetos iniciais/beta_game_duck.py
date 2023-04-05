@@ -10,6 +10,7 @@ class Game:
         
         #aqui chama amea tela inicial do g
         self.home_screen()
+        self.teste
 
     #cria a tela de inicio do game
     def home_screen(self):
