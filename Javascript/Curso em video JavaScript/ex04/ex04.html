@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ex04</title>
+</head>
+<body>
+    <script>
+        var name = window.prompt("Whats is your name ?:")
+        var number = Number(window.prompt("Send numbe"))    
+        document.writeln(`Hi ${name}, your name has ${name.length} letters `) // o .length conta quantas letras tem a palavra
+        document.writeln(`Your name with the function toUpperCase() is ${name.toUpperCase()}`)  // o camando .toUpperCase deixa todas as letras em maiusculas 
+        document.writeln(number.toFixed(2).replace(".", ","))
+        //  o toFixed() serve para formatação de numeros passando quantas casas decimais ele formatara o numero combinando ele com o .replace() pode se trocar os pontos por virgulas 
+        document.writeln(number.toLocaleString("pt-BR", {style: "currency", currency: 'BRL'}))
+        // toLocaleString formata o numero para uma moeda podendo ser qualquer uma apenas passando seu tipo de moeda 
+
+    </script>
+</body>
+</html>
