@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Digite a sua velocidade</h1>
+    Km: <input type="number" name="number1" id="number1">
+    <input type="button" value="Verificar" onclick="verf()">
+    <div id="msg">
+
+    </div>
+    
+    <script>
+        function verf(){
+            var val1 = document.getElementById("number1")
+            var n1  = Number(val1.value)
+            var msg = document.getElementById("msg")
+            if(n1 < 100){
+                msg.innerHTML = `Você está na velocidade permitada ou seja ${n1}km`
+            }
+            else{
+                msg.innerHTML = `Você está acima da velocidade permitada ou seja ${n1}km`
+            }
+        }
+        
+    </script>
+</body>
+</html>

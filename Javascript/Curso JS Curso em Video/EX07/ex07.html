@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width==, initial-scale=1.0">
+    <title>Ex07</title>
+</head>
+<body>
+    <h1>Somando valores</h1>
+    <input type="number" name="number1" id="number1"> +
+    <input type="number" name="number2" 
+    id="number2">
+    <input type="button" value="Somar" onclick= soma()>
+    <div id="res">Resposta</div>
+    <script>
+        function soma(){
+            var val1 = document.getElementById("number1")
+            var val2 = document.getElementById("number2")
+            var res = document.getElementById("res")
+            var n1 = Number(val1.value)
+            var n2 = Number(val2.value)
+            res.innerText = n1 + n2
+            // for (n = 1; n<11; n++){
+            //     document.write(`${n1} X ${n} = ${n1 * n}`)
+            // }
+        }
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styleex013.css">
+    <title>Verificador de idade</title>
+
+</head>
+<body>
+    <header>
+        <h1>Verificador de Idade</h1>
+    </header>
+    <section>
+        <div id="msg">
+            <p>Ano de nascimento:
+                <input type="number" name="num" id="num" min="0">
+            </p> 
+            <p>Sexo:
+                <input type="radio" name="radsex" id="man" checked> 
+                <label for="man">Masculino</label>  
+                <input type="radio" name="radsex" id="wom" >
+                <label for="women"> Feminino</label>
+            </p> 
+            <p> 
+              <input type="button" value="Verificar" onclick="verificar()">  
+            </p>
+        </div>
+        <div id= "res">
+            <p>Preencha todos os valores para a verificação !</p>
+        </div>
+    </section>
+    <footer>
+        <p>&copy;CursoemVideo</p>
+    </footer>
+    <script src="scriptex013.js"></script>
+</body>
+</html>
